@@ -9,8 +9,9 @@ a, b = -1, 1
 n = 5
 K = np.arange(2*n)
 
-x = np.linspace(a, b, n)
-w = (2/n)*np.ones(n)
+# Use Legendre roots as initial guess (much better than uniform grid!)
+x, w_init = scipy.special.roots_legendre(n)
+w = np.abs(w_init)  # Ensure positive weights
 
 I = (b**(K + 1) - a**(K + 1))/(K + 1)
 
@@ -40,13 +41,11 @@ for iteration in range(100):
     if VERBOSE:
         print(f'  * cond(J) = {np.linalg.cond(J)}')
 
-    mul = lambda x: J.T@(J@x)
+    # Fixed: use rtol instead of deprecated tol
+    mul = lambda v: J.T@(J@v)
     Jt_J = scipy.sparse.linalg.LinearOperator(
         shape=(2*n, 2*n), matvec=mul, rmatvec=mul, matmat=mul, rmatmat=mul)
-    _ = scipy.sparse.linalg.cg(Jt_J, J.T@R, tol=min(maxtol, residual))[0]
-
-    # _ = scipy.sparse.linalg.cg(J.T@J, J.T@R, tol=min(maxtol, residual),
-    #                            x0=np.zeros(2*n))[0]
+    _ = scipy.sparse.linalg.cg(Jt_J, J.T@R, rtol=min(maxtol, residual))[0]
 
     dx, dw = _[:len(x)], _[len(w):]
 
