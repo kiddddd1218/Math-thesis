@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+
+# Large files
+*.pdf
+*.png
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# OS
+.DS_Store
